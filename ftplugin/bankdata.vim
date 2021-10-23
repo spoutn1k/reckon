@@ -16,6 +16,8 @@ function Fold()
     let line=getline('.')
     let g:S = 0
 
+    execute "normal! zR"
+
     if match(line, ">-\\+$") > -1
         let l:label=GetLabel(line)
         execute "normal! j"
@@ -23,6 +25,16 @@ function Fold()
     endif
 
     execute "normal! " . row_number . "G"
+endfunction
+
+function SetOrUpdateTotal(label, total)
+    let l:line=getline(line('.') + 1)
+    if match(l:line, 'TOTAL .*') > -1
+        execute "normal! j"
+    else
+        execute "normal! o"
+    endif
+    call setline('.', 'TOTAL ' . a:label . ': ' . a:total)
 endfunction
 
 function FoldOne_(label)
@@ -42,8 +54,7 @@ function FoldOne_(label)
             " echom line "END" g:S
             let l:sum=g:S
             let g:S=0
-            execute "normal! o"
-            call setline('.', a:label . ': ' . l:sum)
+            call SetOrUpdateTotal(a:label, l:sum)
             execute "normal! j"
             return l:sum
         elseif amount ==? "" || match(line, "^#") > -1
